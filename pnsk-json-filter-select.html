@@ -1,0 +1,119 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../iron-input/iron-input.html">
+<link rel="import" href="../iron-selector/iron-selector.html">
+<dom-module id="pnsk-json-filter-select">
+
+    <style>
+
+        :host {
+            display: block;
+            box-sizing: border-box;
+        }
+        .iron-selected{
+            background: lightblue !important;
+        }
+    </style>
+    
+    <template>
+
+        <style>
+            .list-item{
+                background: lightgrey;
+            }
+        </style>
+        
+        <iron-ajax
+                id="ajax"
+                url="{{src}}"
+                handle-as="json"
+                debounce-duration="300"
+                last-response="{{ajaxResponse}}"
+                on-response="_updateList"
+                ></iron-ajax>
+                
+        <label>
+            Search: 
+            <input is="iron-input" on-keyup="_updateList" bind-value="{{filterText}}">
+        </label>
+        
+        <iron-selector attr-for-selected="name" selected="{{value}}">
+            <template is="dom-repeat" items="[[_filteredItems]]">
+                <div name="{{item.id}}" class="list-item">{{item.label}}</div>
+            </template>
+        </iron-selector>
+
+        <content></content>
+    </template>
+
+</dom-module>
+
+<script>
+    Polymer({
+        is: 'pnsk-json-filter-select',
+        properties: {
+
+            /**
+             * Where to fetch the array of available items, URL pointing to JSON
+             */
+            src: String,
+            
+            /**
+             * String to filter labels by 
+             */
+            filterText: String,
+            
+            /**
+             * Which field in the fetched JSON array to use as the index
+             */
+            srcIndexField: String,
+
+            /**
+             * Field to use in label.
+             */
+            srcLabelField: String,
+
+            /**
+             * Output value. Placed in hidden input in light dom, also used by <ajax-form>
+             */
+            value: {
+                type: String,
+                observer: '_valueChanged'
+            },
+            
+            _filteredItems: Array,
+
+        },
+        
+        refresh: function(){
+            this.$.ajax.generateRequest();
+        },
+
+        _updateList: function(){
+            var tmpItems = [];
+            this._filteredItems = [];
+            for( var key in this.ajaxResponse ){
+                var item = this.ajaxResponse[key];
+                if( ( this.filterText.length > 2 ) && (item[this.srcLabelField].toLowerCase().indexOf(this.filterText.toLowerCase()) > -1 ) ){
+                    var tmp = {id:item[this.srcIndexField], label: item[this.srcLabelField]};
+                    tmpItems.push( tmp );
+                }
+            }
+            this._filteredItems = tmpItems;
+            // alert("nboo");
+        },
+
+        _valueChanged: function(newValue, oldValue){
+            Polymer.dom(this).querySelector("input").value = newValue;
+            this.fire('selectedChanged', {newValue: newValue});
+        },
+
+        // Element Lifecycle
+
+        ready: function () {
+            this.refresh();
+        },
+
+    });
+
+</script>
