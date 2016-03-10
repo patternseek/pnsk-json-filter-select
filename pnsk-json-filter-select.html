@@ -115,9 +115,10 @@
             for (var key in this.ajaxResponse) {
                 if (this.ajaxResponse[key].id == Polymer.dom(this).querySelector("input").value) {
                     this.$.currentSelection.textContent = this.ajaxResponse[key].label;
-                    break;
+                    return;
                 }
             }
+            this.$.currentSelection.textContent = "None"
         }, 
         
         _valueChanged: function(newValue, oldValue){
