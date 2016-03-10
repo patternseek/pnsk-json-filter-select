@@ -43,6 +43,14 @@
             </template>
         </iron-selector>
 
+
+        <div id="currentSelectionTitle">
+            Current selection:
+        </div>
+        <span id="currentSelection">
+            
+        </span>
+
         <content></content>
     </template>
 
@@ -100,11 +108,21 @@
                 }
             }
             this._filteredItems = tmpItems;
-            // alert("nboo");
+            this._updateSelectedIndicator();
         },
 
+        _updateSelectedIndicator: function () {
+            for (var key in this.ajaxResponse) {
+                if (this.ajaxResponse[key].id == Polymer.dom(this).querySelector("input").value) {
+                    this.$.currentSelection.textContent = this.ajaxResponse[key].label;
+                    break;
+                }
+            }
+        }, 
+        
         _valueChanged: function(newValue, oldValue){
             Polymer.dom(this).querySelector("input").value = newValue;
+            this._updateSelectedIndicator();
             this.fire('selectedChanged', {newValue: newValue});
         },
 
@@ -112,7 +130,7 @@
 
         ready: function () {
             this.refresh();
-        },
+        }
 
     });
 
