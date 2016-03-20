@@ -10,9 +10,66 @@
             display: block;
             box-sizing: border-box;
         }
+
+        input, button {
+            display: block;
+            margin: 8px 0px;
+        }
+
+        label {
+            display: block !important;
+            font-size: 12px;
+            color: #7A7A7A !important;
+            margin-top: 8px;
+            width: auto !important;
+        }
+
+        label input,
+        label select,
+        label textarea {
+            margin: 4px 0px 3px;
+            display: block !important;
+        }
+
+        button,
+        select,
+        input {
+            background-color: #A8A8A8;
+            border: medium none;
+            margin: 8px;
+            padding: 4px 6px 4px;
+            border-radius: 3px;
+            color: white;
+        }
+
+        button {
+            margin: 8px 0 !important;
+            outline: 0;
+        }
+
+        button::-moz-focus-inner {
+            border: 0;
+        }
+        
         .iron-selected{
             background: lightblue !important;
         }
+
+        iron-selector {
+            padding: 4px 0px;
+            display: block;
+        }
+
+        iron-selector > .list-item {
+            padding: 3px;
+            color: #7A7A7A !important
+        }
+
+        #currentSelection {
+            color: black;
+            font-weight: bold;
+        }
+        
     </style>
     
     <template>
@@ -42,6 +99,14 @@
                 <div name="{{item.id}}" class="list-item">{{item.label}}</div>
             </template>
         </iron-selector>
+
+
+        <label id="currentSelectionTitle">
+            Current selection:
+            <label id="currentSelection">
+
+            </label>
+        </label>
 
         <content></content>
     </template>
@@ -100,11 +165,22 @@
                 }
             }
             this._filteredItems = tmpItems;
-            // alert("nboo");
+            this._updateSelectedIndicator();
         },
 
+        _updateSelectedIndicator: function () {
+            for (var key in this.ajaxResponse) {
+                if (this.ajaxResponse[key].id == Polymer.dom(this).querySelector("input").value) {
+                    this.$.currentSelection.textContent = this.ajaxResponse[key].label;
+                    return;
+                }
+            }
+            this.$.currentSelection.textContent = "None"
+        }, 
+        
         _valueChanged: function(newValue, oldValue){
             Polymer.dom(this).querySelector("input").value = newValue;
+            this._updateSelectedIndicator();
             this.fire('selectedChanged', {newValue: newValue});
         },
 
@@ -112,7 +188,7 @@
 
         ready: function () {
             this.refresh();
-        },
+        }
 
     });
 
