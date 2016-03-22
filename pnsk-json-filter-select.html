@@ -40,6 +40,7 @@
             padding: 4px 6px 4px;
             border-radius: 3px;
             color: white;
+            width: auto !important;
         }
 
         button {
@@ -179,6 +180,10 @@
         }, 
         
         _valueChanged: function(newValue, oldValue){
+            // Not ready? Bail
+            if( Polymer.dom(this).querySelector("input") == null ){
+                return;
+            }
             Polymer.dom(this).querySelector("input").value = newValue;
             this._updateSelectedIndicator();
             this.fire('selectedChanged', {newValue: newValue});
@@ -186,7 +191,7 @@
 
         // Element Lifecycle
 
-        ready: function () {
+        attached: function () {
             this.refresh();
         }
 
